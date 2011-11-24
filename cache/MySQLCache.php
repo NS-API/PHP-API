@@ -79,10 +79,22 @@ class MySQLCache extends Cache
 
 	private function tryFromCache($id, $timeToCache)
 	{
+		$parameters = array();
 		$arguments = func_get_args();
 		array_shift($arguments); // Remove $id
 		array_shift($arguments); // Remove $timeToCache
-		$parameters = serialize($arguments);
+		foreach ($arguments as $arg)
+		{
+			if ($arg instanceof Station)
+			{
+				$arguments[] = $arg->getCode();
+			}
+			else
+			{
+				$arguments[] = $arg;
+			}
+		}
+		$parameters = serialize($parameters);
 		$result = mysql_query("SELECT `result` FROM `".mysql_real_escape_string($this->table)."` WHERE `method` = ".mysql_real_escape_string($id)." AND `parameters` = '".mysql_real_escape_string($parameters)."' AND `timestamp` > ".(time()-$timeToCache), $this->dbConnection);
 		if ($result === FALSE)
 		{
@@ -97,10 +109,22 @@ class MySQLCache extends Cache
 
 	private function putInCache($id, $xmlResult)
 	{
+		$parameters = array();
 		$arguments = func_get_args();
 		array_shift($arguments); // Remove $id
-		array_shift($arguments); // Remove $result
-		$parameters = serialize($arguments);
+		array_shift($arguments); // Remove $xmlResult
+		foreach ($arguments as $arg)
+		{
+			if ($arg instanceof Station)
+			{
+				$arguments[] = $arg->getCode();
+			}
+			else
+			{
+				$arguments[] = $arg;
+			}
+		}
+		$parameters = serialize($parameters);
 		$result = mysql_query("UPDATE `".mysql_real_escape_string($this->table)."` SET `result` = '".mysql_real_escape_string($xmlResult)."', `timestamp` = ".time()." WHERE `method` = ".mysql_real_escape_string($id)." AND `parameters` = '".mysql_real_escape_string($parameters)."'", $this->dbConnection);
 		if (mysql_affected_rows($this->dbConnection) < 1)
 		{
@@ -125,7 +149,7 @@ class MySQLCache extends Cache
 		if ($xml === NULL)
 		{
 			$xml = $this->getRetriever()->getPrijzen($fromStation, $toStation, $viaStation, $dateTime);
-			$this->putInCache(self::ID_PRIJZEN, $xml);
+			$this->putInCache(self::ID_PRIJZEN, $xml, $fromStation, $toStation, $viaStation, $dateTime);
 		}
 		return $xml;
 	}
@@ -136,7 +160,7 @@ class MySQLCache extends Cache
 		if ($xml === NULL)
 		{
 			$xml = $this->getRetriever()->getActueleVertrektijden($station);
-			$this->putInCache(self::ID_ACTUELEVERTREKTIJDEN, $xml);
+			$this->putInCache(self::ID_ACTUELEVERTREKTIJDEN, $xml, $station);
 		}
 		return $xml;
 	}
@@ -147,7 +171,7 @@ class MySQLCache extends Cache
 		if ($xml === NULL)
 		{
 			$xml = $this->getRetriever()->getTreinplanner($fromStation, $toStation, $viaStation, $previousAdvices, $nextAdvices, $dateTime, $departure, $hslAllowed, $yearCard);
-			$this->putInCache(self::ID_TREINPLANNER, $xml);
+			$this->putInCache(self::ID_TREINPLANNER, $xml, $fromStation, $toStation, $viaStation, $previousAdvices, $nextAdvices, $dateTime, $departure, $hslAllowed, $yearCard);
 		}
 		return $xml;
 	}
@@ -158,7 +182,7 @@ class MySQLCache extends Cache
 		if ($xml === NULL)
 		{
 			$xml = $this->getRetriever()->getStoringen($station, $actual, $unplanned);
-			$this->putInCache(self::ID_STORINGEN, $xml);
+			$this->putInCache(self::ID_STORINGEN, $xml, $station, $actual, $unplanned);
 		}
 		return $xml;
 	}
