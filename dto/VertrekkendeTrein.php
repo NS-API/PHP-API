@@ -81,7 +81,7 @@ class VertrekkendeTrein
 		return $this->vertrekSpoorGewijzigd;
 	}
 
-	public function opmerkingen()
+	public function getOpmerkingen()
 	{
 		return $this->opmerkingen;
 	}
