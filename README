@@ -15,7 +15,7 @@ Step 1: get your developer key at https://www.ns.nl/ews-aanvraagformulier/
 
 Step 2: include the main file
 Simply include phpNS.php with the following line:
-  require_once('phpNS.php');
+  require_once('NS.php');
 
 Step 3: decide on the retriever implementation you want to use
 A 'retriever' is a class that can request content from ns.nl. At the moment, there's only one retriever:
@@ -45,7 +45,7 @@ The NS class has several methods. For this example, we want to retrieve a list o
   $stations = $ns->getStations();
 
 The complete code is like this:
-  require_once('phpNS.php');
+  require_once('NS.php');
   $retriever = new cURLRetriever('<YOUR_EMAIL>', '<YOUR_DEVELOPER_KEY>');
   $cache = new FileCache($retriever, "tmp");
   $ns = new NS($cache);

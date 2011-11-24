@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once('dto/Storing.php');
+require_once(dirname(__file__).'/Storing.php');
 
 class GeplandeStoring extends Storing
 {

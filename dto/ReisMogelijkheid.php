@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once('dto/Melding.php');
-require_once('dto/ReisDeel.php');
+require_once(dirname(__file__).'/Melding.php');
+require_once(dirname(__file__).'/ReisDeel.php');
 
 class ReisMogelijkheid
 {

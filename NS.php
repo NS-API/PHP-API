@@ -16,21 +16,21 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once('Utils.php');
+require_once(dirname(__file__).'/Utils.php');
 
-require_once('dto/Station.php');
-require_once('dto/Product.php');
-require_once('dto/VertrekkendeTrein.php');
-require_once('dto/ReisMogelijkheid.php');
-require_once('dto/GeplandeStoring.php');
-require_once('dto/OngeplandeStoring.php');
+require_once(dirname(__file__).'/dto/Station.php');
+require_once(dirname(__file__).'/dto/Product.php');
+require_once(dirname(__file__).'/dto/VertrekkendeTrein.php');
+require_once(dirname(__file__).'/dto/ReisMogelijkheid.php');
+require_once(dirname(__file__).'/dto/GeplandeStoring.php');
+require_once(dirname(__file__).'/dto/OngeplandeStoring.php');
 
-require_once('cache/Cache.php');
-require_once('cache/FileCache.php');
-require_once('cache/MySQLCache.php');
+require_once(dirname(__file__).'/cache/Cache.php');
+require_once(dirname(__file__).'/cache/FileCache.php');
+require_once(dirname(__file__).'/cache/MySQLCache.php');
 
-require_once('retriever/Retriever.php');
-require_once('retriever/cURLRetriever.php');
+require_once(dirname(__file__).'/retriever/Retriever.php');
+require_once(dirname(__file__).'/retriever/cURLRetriever.php');
 
 class NS
 {

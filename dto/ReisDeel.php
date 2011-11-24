@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once('dto/ReisStop.php');
+require_once(dirname(__file__).'/ReisStop.php');
 
 class ReisDeel
 {
