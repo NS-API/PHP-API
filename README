@@ -1,0 +1,52 @@
+phpNS, by Jurrie Overgoor <jurrie@narrowxpres.nl>
+
+phpNS is an implementation of the public API of the NS.
+You can find the documentation of that API at http://www.ns.nl/reizigers/blind/_api-nieuw
+
+phpNS is licensed under the GNU General Public License version 3. Please see the COPYING file for more information.
+
+Developer key
+-------------
+To use phpNS, you must have a developer key. You can request one at https://www.ns.nl/ews-aanvraagformulier/
+
+How to use phpNS
+----------------
+Step 1: get your developer key at https://www.ns.nl/ews-aanvraagformulier/
+
+Step 2: include the main file
+Simply include phpNS.php with the following line:
+  require_once('phpNS.php');
+
+Step 3: decide on the retriever implementation you want to use
+A 'retriever' is a class that can request content from ns.nl. At the moment, there's only one retriever:
+* cURLRetriever: It uses cURL to request the information.
+(Implement your own retriever when you have special needs, like proxy-support or something. To implement your own retriever, extend Retriever and implement the abstract methods.)
+
+Instantiate the cURLRetriever like so:
+  $retriever = new cURLRetriever('<YOUR_EMAIL>', '<YOUR_DEVELOPER_KEY>');
+
+Replace <YOUR_EMAIL> with the email you used in step 1, and <YOUR_DEVELOPER_KEY> with the key you got from step 1.
+
+Step 4: decide on the caching implementation
+Caching the responses is a good idea, as it lowers the amount of requests you need to do on the NS servers. At the moment, you have the choice between three caching implementations:
+* NoCache: does not actually cache
+* FileCache: caches responses on disk, in a directory structure
+* MySQLCache: caches responses in a MySQL database table
+
+Let's go for the FileCache. We want to cache the responses in a 'tmp' directory below the current directory. We instantiate the FileCache like so:
+  $cache = new FileCache($retriever, "tmp");
+
+Step 5: create an NS object
+The NS class is the main class that you'll use for accessing the NS information. Instantiate it like so:
+  $ns = new NS($cache);
+
+Step 6: query the NS object for the information you want!
+The NS class has several methods. For this example, we want to retrieve a list of all stations:
+  $stations = $ns->getStations();
+
+The complete code is like this:
+  require_once('phpNS.php');
+  $retriever = new cURLRetriever('<YOUR_EMAIL>', '<YOUR_DEVELOPER_KEY>');
+  $cache = new FileCache($retriever, "tmp");
+  $ns = new NS($cache);
+  $stations = $ns->getStations();
