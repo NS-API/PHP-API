@@ -56,7 +56,7 @@ class VertrekkendeTrein
 		return $this->vertrekVertraging;
 	}
 
-	public function getVertrekVertragingText()
+	public function getVertrekVertragingTekst()
 	{
 		return $this->vertrekVertragingTekst;
 	}
