@@ -53,7 +53,8 @@ abstract class Cache
 	{
 		$this->timeToCacheStations = $timeToCacheStations;
 	}
-	public function getTimeToCachePrijzen() {
+	public function getTimeToCachePrijzen()
+	{
 		return $this->timeToCachePrijzen;
 	}
 
@@ -93,7 +94,7 @@ abstract class Cache
 	}
 
 	public abstract function getStations();
-	public abstract function getPrijzen($fromStation, $toStation, $viaStation, $dateTime);
+	public abstract function getPrijzen($fromStation, $toStation, $viaStation = null, $dateTime = null);
 	public abstract function getActueleVertrektijden($station);
 	public abstract function getTreinplanner($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null);
 	public abstract function getStoringen($station, $actual = null, $unplanned = null);
