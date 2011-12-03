@@ -27,6 +27,41 @@ abstract class Utils
 	{
 		return date('c', $unixTimestamp);
 	}
+	
+	/**
+	 * This function will convert an ISO8601 period to the number of seconds.
+	 * The number of seconds a period represents cannot be accurately calculated if you don't know the start of the period, so you need to give this.
+	 * @param string $iso8601period The ISO8601 period to be converted
+	 * @param long $fromDateTime The start of the period, given as a Unix timestamp
+	 */
+	public static function ISO8601Period2UnixTimestamp($iso8601period, $fromDateTime)
+	{
+		if (class_exists('DateInterval'))
+		{
+			$dateInterval = new DateInterval($iso8601period);
+			$toDateTime = strtotime("+".$dateInterval->format("%y")." year +".$dateInterval->format("%m")." month +".$dateInterval->format("%d")." day +".$dateInterval->format("%h")." hour +".$dateInterval->format("%i")." minute +".$dateInterval->format("%s")." second", $fromDateTime);
+		}
+		else
+		{
+			// Remove the ambiguity of month and minute: make month = x
+			$arr = explode('T', $iso8601period);
+			$arr[0] = str_replace('M', 'X', $arr[0]);
+			$new = implode('T', $arr);
+
+			// EXPAND THE STRING INTO SOMETHING SENSIBLE
+			$new = str_replace('S', 'second ', $new);
+			$new = str_replace('M', 'minute ', $new);
+			$new = str_replace('H', 'hour ', $new);
+			$new = str_replace('T', NULL, $new);
+			$new = str_replace('D', 'day', $new);
+			$new = str_replace('X', 'month ', $new);
+			$new = str_replace('Y', 'year ', $new);
+			$new = str_replace('P', NULL, $new);
+	
+			$toDateTime = strtotime($new, $fromDateTime);
+		}
+		return $toDateTime - $fromDateTime;
+	}
 
 	public static function boolean2String($boolean)
 	{

@@ -16,13 +16,18 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
+require_once(dirname(__file__).'/Retriever.php');
+require_once(dirname(__file__).'/NScURLRetrieverException.php');
+
 /**
  * A simple Retriever implementation that uses cURL to retrieve data from the NS.
  */
-require_once('Retriever.php');
-
 class cURLRetriever extends Retriever
 {
+	const SOAP_FAULT = "<soap:Fault>";
+	const SOAP_FAULTSTRING_START = "<faultstring>";
+	const SOAP_FAULTSTRING_END = "</faultstring>";
+	
 	public function __construct($username, $password)
 	{
 		parent::__construct($username, $password);
@@ -59,9 +64,39 @@ class cURLRetriever extends Retriever
 		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		curl_setopt($ch, CURLOPT_USERPWD, parent::getUsername() . ":" . parent::getPassword());
 		curl_setopt($ch, CURLOPT_TIMEOUT, 0);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$xml = curl_exec($ch);
+		
+		if (curl_errno($ch) != 0)
+		{
+			throw new NScURLRetrieverException(NScURLRetrieverException::TYPE_CURL, $url, curl_error($ch), curl_errno($ch));
+		}
+		
 		curl_close($ch);
+
+		if (strpos($xml, self::SOAP_FAULT) > -1)
+		{
+			// This is an error response
+			$faultstringStartPosition = strpos($xml, self::SOAP_FAULTSTRING_START);
+			$faultstringEndPosition = strpos($xml, self::SOAP_FAULTSTRING_END);
+			if ($faultstringStartPosition > -1 && $faultstringEndPosition > $faultstringStartPosition)
+			{
+				$faultstring = substr($xml, $faultstringStartPosition + strlen(self::SOAP_FAULTSTRING_START), $faultstringEndPosition- $faultstringStartPosition - strlen(self::SOAP_FAULTSTRING_START));
+				if (preg_match("/^([0-9]+):(.+)$/", $faultstring, $matches) > 0)
+				{
+					throw new NScURLRetrieverException(NScURLRetrieverException::TYPE_XML, $url, $matches[2], $matches[1]);
+				}
+				else
+				{
+					throw new NScURLRetrieverException(NScURLRetrieverException::TYPE_XML, $url, $faultstring);
+				}
+			}
+			else
+			{
+				throw new NScURLRetrieverException(NScURLRetrieverException::TYPE_XML, $url);
+			}
+		}
+
 		return $xml;
 	}
 }

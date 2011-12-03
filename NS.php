@@ -17,6 +17,7 @@
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
 require_once(dirname(__file__).'/Utils.php');
+require_once(dirname(__file__).'/NSException.php');
 
 require_once(dirname(__file__).'/dto/Station.php');
 require_once(dirname(__file__).'/dto/Product.php');
@@ -26,6 +27,7 @@ require_once(dirname(__file__).'/dto/GeplandeStoring.php');
 require_once(dirname(__file__).'/dto/OngeplandeStoring.php');
 
 require_once(dirname(__file__).'/cache/Cache.php');
+require_once(dirname(__file__).'/cache/NoCache.php');
 require_once(dirname(__file__).'/cache/FileCache.php');
 require_once(dirname(__file__).'/cache/MySQLCache.php');
 
@@ -39,6 +41,11 @@ class NS
 	public function __construct($cache)
 	{
 		$this->cache = $cache;
+	}
+	
+	public function getCache()
+	{
+		return $this->cache;
 	}
 
 	public function getStationByCode($code)
@@ -118,7 +125,7 @@ class NS
 			$vertrekVertragingTekst = NULL;
 			if ($xmlVertrekkendeTrein->VertrekVertraging !== NULL && (string)$xmlVertrekkendeTrein->VertrekVertraging !== "")
 			{
-				$vertrekVertraging = new DateInterval($xmlVertrekkendeTrein->VertrekVertraging);
+				$vertrekVertraging = Utils::ISO8601Period2UnixTimestamp($xmlVertrekkendeTrein->VertrekVertraging, $vertrekTijd);
 				$vertrekVertragingTekst = (string)$xmlVertrekkendeTrein->VertrekVertragingTekst;
 			}
 			$eindBestemming = (string)$xmlVertrekkendeTrein->EindBestemming;
