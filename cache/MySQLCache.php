@@ -87,11 +87,11 @@ class MySQLCache extends Cache
 		{
 			if ($arg instanceof Station)
 			{
-				$arguments[] = $arg->getCode();
+				$parameters[] = $arg->getCode();
 			}
 			else
 			{
-				$arguments[] = $arg;
+				$parameters[] = $arg;
 			}
 		}
 		$parameters = serialize($parameters);
@@ -117,11 +117,11 @@ class MySQLCache extends Cache
 		{
 			if ($arg instanceof Station)
 			{
-				$arguments[] = $arg->getCode();
+				$parameters[] = $arg->getCode();
 			}
 			else
 			{
-				$arguments[] = $arg;
+				$parameters[] = $arg;
 			}
 		}
 		$parameters = serialize($parameters);
