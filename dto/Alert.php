@@ -16,32 +16,31 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-class Prijs
+class Alert
 {
-	private $korting;
-	private $klasse;
-	private $prijs;
+	private $id;
+	private $serious;
+	private $text;
 
-	public function __construct($korting, $klasse, $prijs)
+	public function __construct($id, $serious, $text)
 	{
-		$this->korting = $korting;
-		$this->klasse = $klasse;
-		$this->prijs = $prijs;
+		$this->id = $id;
+		$this->serious = $serious;
+		$this->text = $text;
 	}
 
-	public function getKorting()
+	public function getId()
 	{
-		return $this->korting;
+		return $this->id;
 	}
 
-	public function getKlasse()
+	public function isSerious()
 	{
-		return $this->klasse;
+		return $this->serious;
 	}
 
-	public function getPrijs()
+	public function getText()
 	{
-		return $this->prijs;
+		return $this->text;
 	}
 }
-?>

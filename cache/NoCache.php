@@ -34,24 +34,23 @@ class NoCache extends Cache
 		return $this->getRetriever()->getStations();
 	}
 
-	public function getPrijzen($fromStation, $toStation, $viaStation = null, $dateTime = null)
+	public function getRates($fromStation, $toStation, $viaStation = null, $dateTime = null)
 	{
-		return $this->getRetriever()->getPrijzen($fromStation, $toStation, $viaStation, $dateTime);
+		return $this->getRetriever()->getRates($fromStation, $toStation, $viaStation, $dateTime);
 	}
 
-	public function getActueleVertrektijden($station)
+	public function getActuelDepartureTimes($station)
 	{
-		return $this->getRetriever()->getActueleVertrektijden($station);
+		return $this->getRetriever()->getActualDepartureTimes($station);
 	}
 
-	public function getTreinplanner($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null)
+	public function getTrainscheduler($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null)
 	{
-		return $this->getRetriever()->getTreinplanner($fromStation, $toStation, $viaStation, $previousAdvices, $nextAdvices, $dateTime, $departure, $hslAllowed, $yearCard);
+		return $this->getRetriever()->getTrainscheduler($fromStation, $toStation, $viaStation, $previousAdvices, $nextAdvices, $dateTime, $departure, $hslAllowed, $yearCard);
 	}
 
-	public function getStoringen($station, $actual = null, $unplanned = null)
+	public function getOutages($station, $actual = null, $unplanned = null)
 	{
-		return $this->getRetriever()->getStoringen($station, $actual, $unplanned);
+		return $this->getRetriever()->getOutages($station, $actual, $unplanned);
 	}
 }
-?>

@@ -16,27 +16,26 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once(dirname(__file__).'/Prijs.php');
+require_once(dirname(__FILE__) . '/Rate.php');
 
 class Product
 {
-	private $naam;
-	private $prijzen;
+	private $name;
+	private $rates;
 
-	public function __construct($naam, $prijzen)
+	public function __construct($name, $rates)
 	{
-		$this->naam = $naam;
-		$this->prijzen = $prijzen;
+		$this->name = $name;
+		$this->rates = $rates;
 	}
 
-	public function getNaam()
+	public function getName()
 	{
-		return $this->naam;
+		return $this->name;
 	}
 
-	public function getPrijzen()
+	public function getRates()
 	{
-		return $this->prijzen;
+		return $this->rates;
 	}
 }
-?>

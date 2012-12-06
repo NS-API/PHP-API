@@ -16,39 +16,27 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-class ReisStop
+require_once(dirname(__FILE__) . '/Outage.php');
+
+class PlannedOutage extends Outage
 {
-	private $naam;
-	private $tijd;
-	private $spoor;
-	private $spoorWijziging;
+	private $interval;
+	private $advice;
 
-	public function __construct($naam, $tijd, $spoor, $spoorWijziging)
+	public function __construct($id, $line, $message, $cause, $interval, $advice)
 	{
-		$this->naam = $naam;
-		$this->tijd = $tijd;
-		$this->spoor = $spoor;
-		$this->spoorWijziging = $spoorWijziging;
+		parent::__construct($id, $line, $message, $cause);
+		$this->interval = $interval;
+		$this->advice = $advice;
 	}
 
-	public function getNaam()
+	public function getInterval()
 	{
-		return $this->naam;
+		return $this->interval;
 	}
-
-	public function getTijd()
+	
+	public function getAdvice()
 	{
-		return $this->tijd;
-	}
-
-	public function getSpoor()
-	{
-		return $this->spoor;
-	}
-
-	public function isSpoorWijziging()
-	{
-		return $this->spoorWijziging;
+		return $this->advice;
 	}
 }
-?>

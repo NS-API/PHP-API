@@ -16,41 +16,40 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once(dirname(__file__).'/ReisStop.php');
+require_once(dirname(__FILE__).'/TravelStop.php');
 
-class ReisDeel
+class TravelPart
 {
-	private $reisSoort;
-	private $vervoerType;
-	private $ritNummer;
-	private $reisStops;
+	private $travelType;
+	private $transportationType;
+	private $shiftNumber;
+	private $travelStops;
 
-	public function __construct($reisSoort, $vervoerType, $ritNummer, $reisStops)
+	public function __construct($travelType, $transportationType, $shiftNumber, $travelStops)
 	{
-		$this->reisSoort = $reisSoort;
-		$this->vervoerType = $vervoerType;
-		$this->ritNummer = $ritNummer;
-		$this->reisStops = $reisStops;
+		$this->travelType = $travelType;
+		$this->transportationType = $transportationType;
+		$this->shiftNumber = $shiftNumber;
+		$this->travelStops = $travelStops;
 	}
 
-	public function getReisSoort()
+	public function getTravelType()
 	{
-		return $this->reisSoort;
+		return $this->travelType;
 	}
 
-	public function getVervoerType()
+	public function getTransportationType()
 	{
-		return $this->vervoerType;
+		return $this->transportationType;
 	}
 
-	public function getRitNummer()
+	public function getShiftNumber()
 	{
-		return $this->ritNummer;
+		return $this->shiftNumber;
 	}
 
-	public function getReisStops()
+	public function getTravelStops()
 	{
-		return $this->reisStops;
+		return $this->travelStops;
 	}
 }
-?>

@@ -16,23 +16,23 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once(dirname(__file__).'/Utils.php');
-require_once(dirname(__file__).'/NSException.php');
+require_once(dirname(__FILE__).'/Utils.php');
+require_once(dirname(__FILE__).'/NSException.php');
 
-require_once(dirname(__file__).'/dto/Station.php');
-require_once(dirname(__file__).'/dto/Product.php');
-require_once(dirname(__file__).'/dto/VertrekkendeTrein.php');
-require_once(dirname(__file__).'/dto/ReisMogelijkheid.php');
-require_once(dirname(__file__).'/dto/GeplandeStoring.php');
-require_once(dirname(__file__).'/dto/OngeplandeStoring.php');
+require_once(dirname(__FILE__).'/dto/Station.php');
+require_once(dirname(__FILE__).'/dto/Product.php');
+require_once(dirname(__FILE__).'/dto/DepartingTrain.php');
+require_once(dirname(__FILE__).'/dto/TravelOption.php');
+require_once(dirname(__FILE__).'/dto/PlannedOutage.php');
+require_once(dirname(__FILE__).'/dto/UnplannedOutage.php');
 
-require_once(dirname(__file__).'/cache/Cache.php');
-require_once(dirname(__file__).'/cache/NoCache.php');
-require_once(dirname(__file__).'/cache/FileCache.php');
-require_once(dirname(__file__).'/cache/MySQLCache.php');
+require_once(dirname(__FILE__).'/cache/Cache.php');
+require_once(dirname(__FILE__).'/cache/NoCache.php');
+require_once(dirname(__FILE__).'/cache/FileCache.php');
+require_once(dirname(__FILE__).'/cache/MySQLCache.php');
 
-require_once(dirname(__file__).'/retriever/Retriever.php');
-require_once(dirname(__file__).'/retriever/cURLRetriever.php');
+require_once(dirname(__FILE__).'/retriever/Retriever.php');
+require_once(dirname(__FILE__).'/retriever/cURLRetriever.php');
 
 class NS
 {
@@ -65,6 +65,34 @@ class NS
 		}
 	}
 
+    public function getStationsByCoordinates($longitude, $latitude, $maxDiff) {
+        $stations = $this->getStations();
+        $result = array();
+        foreach ($stations as $station)
+        {
+            if ($station->isAlias())
+            {
+                continue;
+            }
+
+            $diff = $this->getDistanceBetweenPointsNew($latitude, $longitude, $station->getLatitude(), $station->getLongitude());
+            if (intval($diff['kilometers']) < intval($maxDiff))
+            {
+                $result[] = $station;
+            }
+        }
+        return $result;
+    }
+
+    public function getStationNamesByCoordinates($longitude, $latitude, $maxDiff) {
+        $stations = $this->getStationsByCoordinates($longitude, $latitude, $maxDiff);
+        $result = array();
+        foreach ($stations as $station) {
+            $result[] = $station->getName();
+        }
+        return $result;
+    }
+
 	public function getStations()
 	{
 		$xml = $this->cache->getStations();
@@ -85,150 +113,161 @@ class NS
 		return $result;
 	}
 
-	public function getPrijzen($fromStation, $toStation, $viaStation = null, $dateTime = null)
+	public function getRates($fromStation, $toStation, $viaStation = null, $dateTime = null)
 	{
-		$xml = $this->cache->getPrijzen($fromStation, $toStation, $viaStation, $dateTime);
+		$xml = $this->cache->getRates($fromStation, $toStation, $viaStation, $dateTime);
 		$xml = new SimpleXMLElement($xml);
 
 		$result = array();
 		foreach ($xml->Product as $xmlProduct)
 		{
-			$naam = (string)$xmlProduct['naam'];
+			$name = (string)$xmlProduct['naam'];
 
-			$prijzen = array();
-			foreach ($xmlProduct->Prijs as $xmlPrijs)
+			$rates = array();
+			foreach ($xmlProduct->Prijs as $xmlRate)
 			{
-				$korting = (string)$xmlPrijs['korting'];
-				$klasse = (string)$xmlPrijs['klasse'];
-				$prijs = (string)$xmlPrijs;
-				$prijs = new Prijs($korting, $klasse, $prijs);
-				$prijzen[] = $prijs;
+				$discount = (string)$xmlRate['korting'];
+				$class = (string)$xmlRate['klasse'];
+				$rate = (string)$xmlRate;
+				$rate = new Rate($discount, $class, $rate);
+				$rates[] = $rate;
 			}
-			$product = new Product($naam, $prijzen);
+			$product = new Product($name, $rates);
 			$result[] = $product;
 		}
 		return $result;
 	}
 
-	public function getActueleVertrektijden($station)
+	public function getRealDepartureTimes($station)
 	{
-		$xml = $this->cache->getActueleVertrektijden($station);
+		$xml = $this->cache->getRealDepartureTimes($station);
 		$xml = new SimpleXMLElement($xml);
 
 		$result = array();
-		$i = 0;
-		foreach ($xml->VertrekkendeTrein as $xmlVertrekkendeTrein)
+		foreach ($xml->DepartingTrain as $xmlDepartingTrain)
 		{
-			$ritnummer = (string)$xmlVertrekkendeTrein->RitNummer;
-			$vertrekTijd = Utils::ISO8601Date2UnixTimestamp($xmlVertrekkendeTrein->VertrekTijd);
-			$vertrekVertraging = NULL;
-			$vertrekVertragingTekst = NULL;
-			if ($xmlVertrekkendeTrein->VertrekVertraging !== NULL && (string)$xmlVertrekkendeTrein->VertrekVertraging !== "")
+			$shiftNumber = (string)$xmlDepartingTrain->RitNummer;
+			$departureTime = Utils::ISO8601Date2UnixTimestamp($xmlDepartingTrain->VertrekTijd);
+			$departureDelay = NULL;
+			$departureDelayText = NULL;
+			if ($xmlDepartingTrain->VertrekVertraging !== NULL && (string)$xmlDepartingTrain->VertrekVertraging !== "")
 			{
-				$vertrekVertraging = Utils::ISO8601Period2UnixTimestamp($xmlVertrekkendeTrein->VertrekVertraging, $vertrekTijd);
-				$vertrekVertragingTekst = (string)$xmlVertrekkendeTrein->VertrekVertragingTekst;
+				$departureDelay = Utils::ISO8601Period2UnixTimestamp($xmlDepartingTrain->VertrekVertraging, $departureTime);
+				$departureDelayText = (string)$xmlDepartingTrain->VertrekVertragingTekst;
 			}
-			$eindBestemming = (string)$xmlVertrekkendeTrein->EindBestemming;
-			$treinSoort = (string)$xmlVertrekkendeTrein->TreinSoort;
-			$vertrekSpoor = (string)$xmlVertrekkendeTrein->VertrekSpoor;
-			$vertrekSpoorGewijzigd = Utils::string2Boolean($xmlVertrekkendeTrein->VertrekSpoor['wijziging']);
+			$finalDestination = (string)$xmlDepartingTrain->EindBestemming;
+			$trainType = (string)$xmlDepartingTrain->TreinSoort;
+			$departureTrack = (string)$xmlDepartingTrain->VertrekSpoor;
+			$departureTrackChanged = Utils::string2Boolean($xmlDepartingTrain->VertrekSpoor['wijziging']);
 
-			$opmerkingen = array();
-			if ($xmlVertrekkendeTrein->Opmerkingen->Opmerking !== NULL)
+			$remarks = array();
+			if ($xmlDepartingTrain->Opmerkingen->Opmerking !== NULL)
 			{
-				foreach ($xmlVertrekkendeTrein->Opmerkingen->Opmerking as $xmlOpmerking)
+				foreach ($xmlDepartingTrain->Opmerkingen->Opmerking as $xmlOpmerking)
 				{
-					$opmerkingen[] = trim((string)$xmlOpmerking);
+					$remarks[] = trim((string)$xmlOpmerking);
 				}
 			}
-			$vertrekkendeTrein = new VertrekkendeTrein($ritnummer, $vertrekTijd, $vertrekVertraging, $vertrekVertragingTekst, $eindBestemming, $treinSoort, $vertrekSpoor, $vertrekSpoorGewijzigd, $opmerkingen);
-			$result[] = $vertrekkendeTrein;
+			$departingTrain = new DepartingTrain($shiftNumber, $departureTime, $departureDelay, $departureDelayText, $finalDestination, $trainType, $departureTrack, $departureTrackChanged, $remarks);
+			$result[] = $departingTrain;
 		}
 		return $result;
 	}
 
-	public function getTreinplanner($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null)
+	public function getTrainscheduler($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null)
 	{
-		$xml = $this->cache->getTreinplanner($fromStation, $toStation, $viaStation, $previousAdvices, $nextAdvices, $dateTime, $departure, $hslAllowed, $yearCard);
+		$xml = $this->cache->getTrainscheduler($fromStation, $toStation, $viaStation, $previousAdvices, $nextAdvices, $dateTime, $departure, $hslAllowed, $yearCard);
 		$xml = new SimpleXMLElement($xml);
 
 		$result = array();
-		foreach ($xml->ReisMogelijkheid as $xmlReisMogelijkheid)
+		foreach ($xml->TravelOption as $xmlTravelOption)
 		{
-			$aantalOverstappen = (string)$xmlReisMogelijkheid->AantalOverstappen;
-			$geplandeReisTijd = Utils::ISO8601Date2UnixTimestamp($xmlReisMogelijkheid->GeplandeReisTijd);
-			$actueleReisTijd = Utils::ISO8601Date2UnixTimestamp($xmlReisMogelijkheid->ActueleReisTijd);
-			$optimaal = Utils::string2Boolean($xmlReisMogelijkheid->Optimaal);
-			$geplandeVertrekTijd = Utils::ISO8601Date2UnixTimestamp($xmlReisMogelijkheid->GeplandeVertrekTijd);
-			$actueleVertrekTijd = Utils::ISO8601Date2UnixTimestamp($xmlReisMogelijkheid->ActueleVertrekTijd);
-			$geplandeAankomstTijd = Utils::ISO8601Date2UnixTimestamp($xmlReisMogelijkheid->GeplandeAankomstTijd);
-			$actueleAankomstTijd = Utils::ISO8601Date2UnixTimestamp($xmlReisMogelijkheid->ActueleAankomstTijd);
+			$numberOfChanges = (string)$xmlTravelOption->AantalOverstappen;
+			$scheduledTravelTime = Utils::ISO8601Date2UnixTimestamp($xmlTravelOption->GeplandeReisTijd);
+			$actualTravelTime = Utils::ISO8601Date2UnixTimestamp($xmlTravelOption->ActueleReisTijd);
+			$optimal = Utils::string2Boolean($xmlTravelOption->Optimaal);
+			$plannedDepartureTime = Utils::ISO8601Date2UnixTimestamp($xmlTravelOption->GeplandeVertrekTijd);
+			$actualDepartureTime = Utils::ISO8601Date2UnixTimestamp($xmlTravelOption->ActueleVertrekTijd);
+			$plannedArrivalTime = Utils::ISO8601Date2UnixTimestamp($xmlTravelOption->GeplandeAankomstTijd);
+			$actualArrivalTime = Utils::ISO8601Date2UnixTimestamp($xmlTravelOption->ActueleAankomstTijd);
 
-			$melding = NULL;
-			if ($xmlReisMogelijkheid->Melding->Id !== NULL)
+			$alert = NULL;
+			if ($xmlTravelOption->Alert->Id !== NULL)
 			{
-				$xmlMelding = $xmlReisMogelijkheid->Melding;
-				$id = (string)$xmlMelding->Id;
-				$ernstig = Utils::string2Boolean($xmlMelding->Ernstig);
-				$text = (string)$xmlMelding->Text;
-				$melding = new Melding($id, $ernstig, $text);
+				$xmlAlert = $xmlTravelOption->Alert;
+				$id = (string)$xmlAlert->Id;
+				$serious = Utils::string2Boolean($xmlAlert->Serious);
+				$text = (string)$xmlAlert->Text;
+				$alert = new Alert($id, $serious, $text);
 			}
 
-			$reisDelen = array();
-			foreach ($xmlReisMogelijkheid->ReisDeel as $xmlReisDeel)
+			$travelParts = array();
+			foreach ($xmlTravelOption->ReisDeel as $xmlTravelPart)
 			{
-				$reisSoort = (string)$xmlReisDeel['reisSoort'];
-				$vervoerType = (string)$xmlReisDeel->VervoerType;
-				$ritNummer = (string)$xmlReisDeel->RitNummer;
+				$travelType = (string)$xmlTravelPart['travelType'];
+				$transportationType = (string)$xmlTravelPart->VervoerType;
+				$shiftNumber = (string)$xmlTravelPart->RitNummer;
 
-				$reisStops = array();
-				foreach ($xmlReisDeel->ReisStop as $xmlReisStop)
+				$travelStops = array();
+				foreach ($xmlTravelPart->ReisStop as $xmlTravelStop)
 				{
-					$naam = (string)$xmlReisStop->Naam;
-					$tijd = Utils::ISO8601Date2UnixTimestamp($xmlReisStop->Tijd);
-					$spoor = (string)$xmlReisStop->Spoor;
-					$spoorWijziging = Utils::string2Boolean($xmlReisStop->Spoor['wijziging']);
-					$reisStop = new ReisStop($naam, $tijd, $spoor, $spoorWijziging);
-					$reisStops[] = $reisStop;
+					$name = (string)$xmlTravelStop->Naam;
+					$time = Utils::ISO8601Date2UnixTimestamp($xmlTravelStop->Tijd);
+					$track = (string)$xmlTravelStop->Spoor;
+					$trackChange = Utils::string2Boolean($xmlTravelStop->Spoor['wijziging']);
+					$travelStop = new TravelStop($name, $time, $track, $trackChange);
+					$travelStops[] = $travelStop;
 				}
-				$reisDeel = new ReisDeel($reisSoort, $vervoerType, $ritNummer, $reisStops);
-				$reisDelen[] = $reisDeel;
+				$tavelPart = new TravelPart($travelType, $transportationType, $shiftNumber, $travelStops);
+				$travelParts[] = $tavelPart;
 			}
-			$reisMogelijkheid = new ReisMogelijkheid($aantalOverstappen, $geplandeReisTijd, $actueleReisTijd, $optimaal, $geplandeVertrekTijd, $actueleVertrekTijd, $geplandeAankomstTijd, $actueleAankomstTijd, $melding, $reisDelen);
-			$result[] = $reisMogelijkheid;
+			$travelOption = new TravelOption($numberOfChanges, $scheduledTravelTime, $actualTravelTime, $optimal, $plannedDepartureTime, $actualDepartureTime, $plannedArrivalTime, $actualArrivalTime, $alert, $travelParts);
+			$result[] = $travelOption;
 		}
 		return $result;
 	}
 
-	public function getStoringen($station, $actual = null, $unplanned = null)
+	public function getOutages($station, $actual = null, $unplanned = null)
 	{
 		$result = array();
-		$xml = $this->cache->getStoringen($station, $actual, $unplanned);
+		$xml = $this->cache->getOutages($station, $actual, $unplanned);
 		$xml = new SimpleXMLElement($xml);
 
-		foreach ($xml->Ongepland->Storing as $xmlOngeplandeStoring)
+		foreach ($xml->Ongepland->Storing as $xmlUnplannedOutage)
 		{
-			$id = (string)$xmlOngeplandeStoring->id;
-			$traject = (string)$xmlOngeplandeStoring->Traject;
-			$reden = (string)$xmlOngeplandeStoring->Reden;
-			$bericht = (string)$xmlOngeplandeStoring->Bericht;
-			$datum = Utils::ISO8601Date2UnixTimestamp($xmlOngeplandeStoring->Datum);
-			$ongeplandeStoring = new OngeplandeStoring($id, $traject, $bericht, $reden, $datum);
-			$result[] = $ongeplandeStoring;
+			$id = (string)$xmlUnplannedOutage->id;
+			$line = (string)$xmlUnplannedOutage->Line;
+			$cause = (string)$xmlUnplannedOutage->Cause;
+			$message = (string)$xmlUnplannedOutage->Message;
+			$date = Utils::ISO8601Date2UnixTimestamp($xmlUnplannedOutage->Date);
+			$unplannedOutage = new UnplannedOutage($id, $line, $message, $cause, $date);
+			$result[] = $unplannedOutage;
 		}
 
-		foreach ($xml->Gepland->Storing as $xmlGeplandeStoring)
+		foreach ($xml->Gepland->Storing as $xmlPlannedOutage)
 		{
-			$id = (string)$xmlGeplandeStoring->id;
-			$traject = (string)$xmlGeplandeStoring->Traject;
-			$periode = (string)$xmlGeplandeStoring->Periode;
-			$reden = (string)$xmlGeplandeStoring->Reden;
-			$advies = (string)$xmlGeplandeStoring->Advies;
-			$bericht = (string)$xmlGeplandeStoring->Bericht;
-			$geplandeStoring = new GeplandeStoring($id, $traject, $bericht, $reden, $periode, $advies);
-			$result[] = $geplandeStoring;
+			$id = (string)$xmlPlannedOutage->id;
+			$line = (string)$xmlPlannedOutage->Line;
+			$interval = (string)$xmlPlannedOutage->Interval;
+			$cause = (string)$xmlPlannedOutage->Cause;
+			$advice = (string)$xmlPlannedOutage->Advice;
+			$message = (string)$xmlPlannedOutage->Message;
+			$plannedOutage = new PlannedOutage($id, $line, $message, $cause, $interval, $advice);
+			$result[] = $plannedOutage;
 		}
 		return $result;
 	}
+
+    private function getDistanceBetweenPointsNew($latitude1, $longitude1, $latitude2, $longitude2) {
+        $theta = $longitude1 - $longitude2;
+        $miles = (sin(deg2rad($latitude1)) * sin(deg2rad($latitude2))) + (cos(deg2rad($latitude1)) * cos(deg2rad($latitude2)) * cos(deg2rad($theta)));
+        $miles = acos($miles);
+        $miles = rad2deg($miles);
+        $miles = $miles * 60 * 1.1515;
+        $feet = $miles * 5280;
+        $yards = $feet / 3;
+        $kilometers = $miles * 1.609344;
+        $meters = $kilometers * 1000;
+        return compact('miles','feet','yards','kilometers','meters');
+    }
 }
-?>

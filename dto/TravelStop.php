@@ -16,21 +16,38 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once(dirname(__file__).'/Storing.php');
-
-class OngeplandeStoring extends Storing
+class TravelStop
 {
-	private $datum;
+	private $name;
+	private $time;
+	private $track;
+	private $trackChange;
 
-	public function __construct($id, $traject, $bericht, $reden, $datum)
+	public function __construct($name, $time, $track, $trackChange)
 	{
-		parent::__construct($id, $traject, $bericht, $reden);
-		$this->datum = $datum;
+		$this->name = $name;
+		$this->time = $time;
+		$this->track = $track;
+		$this->trackChange = $trackChange;
 	}
 
-	public function getDatum()
+	public function getName()
 	{
-		return $this->datum;
+		return $this->name;
+	}
+
+	public function getTime()
+	{
+		return $this->time;
+	}
+
+	public function getTrack()
+	{
+		return $this->track;
+	}
+
+	public function hasTrackChange()
+	{
+		return $this->trackChange;
 	}
 }
-?>

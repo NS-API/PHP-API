@@ -22,4 +22,3 @@
 class NSException extends Exception
 {
 }
-?>

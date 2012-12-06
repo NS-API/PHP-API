@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once(dirname(__file__).'/../retriever/Retriever.php');
+require_once(dirname(__FILE__).'/../retriever/Retriever.php');
 
 /**
  * A cache is an object that keeps track of requests made, and responses retrieved.
@@ -29,10 +29,10 @@ abstract class Cache
 
 	// Seconds to cache a previous result
 	private $timeToCacheStations = 86400; // 60 * 60 * 24
-	private $timeToCachePrijzen = 86400; // 60 * 60 * 24
-	private $timeToCacheActuelevertrektijden = 30;
-	private $timeToCacheTreinplanner = 60;
-	private $timeToCacheStoringen = 120; // 60 * 2
+	private $timeToCachePrices = 86400; // 60 * 60 * 24
+	private $timeToCacheActuelDepartureTimes = 30;
+	private $timeToCacheTrainscheduler = 60;
+	private $timeToCacheOutages = 120; // 60 * 2
 
 	public function __construct($retriever)
 	{
@@ -53,50 +53,49 @@ abstract class Cache
 	{
 		$this->timeToCacheStations = $timeToCacheStations;
 	}
-	public function getTimeToCachePrijzen()
+	public function getTimeToCachePrices()
 	{
-		return $this->timeToCachePrijzen;
+		return $this->timeToCachePrices;
 	}
 
-	public function setTimeToCachePrijzen($timeToCachePrijzen)
+	public function setTimeToCachePrices($timeToCachePrices)
 	{
-		$this->timeToCachePrijzen = $timeToCachePrijzen;
+		$this->timeToCachePrices = $timeToCachePrices;
 	}
 
-	public function getTimeToCacheActuelevertrektijden()
+	public function getTimeToCacheActuelDepartureTimes()
 	{
-		return $this->timeToCacheActuelevertrektijden;
+		return $this->timeToCacheActuelDepartureTimes;
 	}
 
-	public function setTimeToCacheActuelevertrektijden($timeToCacheActuelevertrektijden)
+	public function setTimeToCacheActuelDepartureTimes($timeToCacheActuelDepartureTimes)
 	{
-		$this->timeToCacheActuelevertrektijden = $timeToCacheActuelevertrektijden;
+		$this->timeToCacheActuelDepartureTimes = $timeToCacheActuelDepartureTimes;
 	}
 
-	public function getTimeToCacheTreinplanner()
+	public function getTimeToCacheTrainscheduler()
 	{
-		return $this->timeToCacheTreinplanner;
+		return $this->timeToCacheTrainscheduler;
 	}
 
-	public function setTimeToCacheTreinplanner($timeToCacheTreinplanner)
+	public function setTimeToCacheTrainscheduler($timeToCacheTrainscheduler)
 	{
-		$this->timeToCacheTreinplanner = $timeToCacheTreinplanner;
+		$this->timeToCacheTrainscheduler = $timeToCacheTrainscheduler;
 	}
 
-	public function getTimeToCacheStoringen()
+	public function getTimeToCacheOutages()
 	{
-		return $this->timeToCacheStoringen;
+		return $this->timeToCacheOutages;
 	}
 
-	public function setTimeToCacheStoringen($timeToCacheStoringen)
+	public function setTimeToCacheOutages($timeToCacheOutages)
 	{
-		$this->timeToCacheStoringen = $timeToCacheStoringen;
+		$this->timeToCacheOutages = $timeToCacheOutages;
 	}
 
 	public abstract function getStations();
-	public abstract function getPrijzen($fromStation, $toStation, $viaStation = null, $dateTime = null);
-	public abstract function getActueleVertrektijden($station);
-	public abstract function getTreinplanner($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null);
-	public abstract function getStoringen($station, $actual = null, $unplanned = null);
+	public abstract function getRates($fromStation, $toStation, $viaStation = null, $dateTime = null);
+	public abstract function getActuelDepartureTimes($station);
+	public abstract function getTrainscheduler($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null);
+	public abstract function getOutages($station, $actual = null, $unplanned = null);
 }
-?>

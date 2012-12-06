@@ -30,10 +30,10 @@ abstract class Retriever
 	private $password;
 
 	const URL_STATIONS = "http://webservices.ns.nl/ns-api-stations";
-	const URL_PRIJZEN = "http://webservices.ns.nl/ns-api-prijzen-v2";
-	const URL_ACTUELEVERTREKTIJDEN = "http://webservices.ns.nl/ns-api-avt";
-	const URL_TREINPLANNER = "http://webservices.ns.nl/ns-api-treinplanner";
-	const URL_STORINGEN = "http://webservices.ns.nl/ns-api-storingen";
+	const URL_RATES = "http://webservices.ns.nl/ns-api-prijzen-v2";
+	const URL_REALDEPARTURETIMES = "http://webservices.ns.nl/ns-api-avt";
+	const URL_TRAINSCHEDULER = "http://webservices.ns.nl/ns-api-trainscheduler";
+	const URL_OUTAGES = "http://webservices.ns.nl/ns-api-outages";
 
 	public function __construct($username, $password)
 	{
@@ -52,9 +52,8 @@ abstract class Retriever
 	}
 
 	public abstract function getStations();
-	public abstract function getPrijzen($fromStation, $toStation, $viaStation = null, $dateTime = null);
-	public abstract function getActueleVertrektijden($station);
-	public abstract function getTreinplanner($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null);
-	public abstract function getStoringen($station = null, $actual = null, $unplanned = null);
+	public abstract function getRates($fromStation, $toStation, $viaStation = null, $dateTime = null);
+	public abstract function getRealDepartureTimes($station);
+	public abstract function getTrainScheduler($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null);
+	public abstract function getOutages($station = null, $actual = null, $unplanned = null);
 }
-?>
