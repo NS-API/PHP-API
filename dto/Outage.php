@@ -16,19 +16,19 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-abstract class Storing
+abstract class Outage
 {
 	private $id;
-	private $traject;
-	private $bericht;
-	private $reden;
+	private $line;
+	private $message;
+	private $cause;
 
-	public function __construct($id, $traject, $bericht, $reden)
+	public function __construct($id, $line, $message, $cause)
 	{
 		$this->id = $id;
-		$this->traject= $traject;
-		$this->bericht = $bericht;
-		$this->reden = $reden;
+		$this->line= $line;
+		$this->message = $message;
+		$this->cause = $cause;
 	}
 
 	public function getId()
@@ -36,19 +36,18 @@ abstract class Storing
 		return $this->id;
 	}
 
-	public function getTraject()
+	public function getLine()
 	{
-		return $this->traject;
+		return $this->line;
 	}
 
-	public function getBericht()
+	public function getMessage()
 	{
-		return $this->bericht;
+		return $this->message;
 	}
 
-	public function getReden()
+	public function getCause()
 	{
-		return $this->reden;
+		return $this->cause;
 	}
 }
-?>

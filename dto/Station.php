@@ -18,26 +18,26 @@
  */
 class Station
 {
-	private $naam;
+	private $name;
 	private $code;
-	private $land;
+	private $country;
 	private $latitude;
 	private $longitude;
 	private $alias;
 
-	public function __construct($naam, $code, $land, $latitude, $longitude, $alias)
+	public function __construct($name, $code, $country, $latitude, $longitude, $alias)
 	{
-		$this->naam = $naam;
+		$this->name = $name;
 		$this->code = $code;
-		$this->land = $land;
+		$this->country = $country;
 		$this->latitude = $latitude;
 		$this->longitude = $longitude;
 		$this->alias = $alias;
 	}
 
-	public function getNaam()
+	public function getName()
 	{
-		return $this->naam;
+		return $this->name;
 	}
 
 	public function getCode()
@@ -45,9 +45,9 @@ class Station
 		return $this->code;
 	}
 
-	public function getLand()
+	public function getCountry()
 	{
-		return $this->land;
+		return $this->country;
 	}
 
 	public function getLatitude()
@@ -65,4 +65,3 @@ class Station
 		return $this->alias;
 	}
 }
-?>

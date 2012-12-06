@@ -16,28 +16,31 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once(dirname(__file__).'/Storing.php');
-
-class GeplandeStoring extends Storing
+class Rate
 {
-	private $periode;
-	private $advies;
+	private $discount;
+	private $class;
+	private $rate;
 
-	public function __construct($id, $traject, $bericht, $reden, $periode, $advies)
+	public function __construct($discount, $class, $rate)
 	{
-		parent::__construct($id, $traject, $bericht, $reden);
-		$this->periode = $periode;
-		$this->advies = $advies;
+		$this->discount = $discount;
+		$this->class = $class;
+		$this->rate = $rate;
 	}
 
-	public function getPeriode()
+	public function getDiscount()
 	{
-		return $this->periode;
+		return $this->discount;
 	}
-	
-	public function getAdvies()
+
+	public function getClass()
 	{
-		return $this->advies;
+		return $this->class;
+	}
+
+	public function getRate()
+	{
+		return $this->rate;
 	}
 }
-?>

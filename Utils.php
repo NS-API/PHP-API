@@ -32,8 +32,9 @@ abstract class Utils
 	 * This function will convert an ISO8601 period to the number of seconds.
 	 * The number of seconds a period represents cannot be accurately calculated if you don't know the start of the period, so you need to give this.
 	 * @param string $iso8601period The ISO8601 period to be converted
-	 * @param long $fromDateTime The start of the period, given as a Unix timestamp
-	 */
+	 * @param float $fromDateTime The start of the period, given as a Unix timestamp
+     * @return int
+     */
 	public static function ISO8601Period2UnixTimestamp($iso8601period, $fromDateTime)
 	{
 		if (class_exists('DateInterval'))
@@ -73,4 +74,3 @@ abstract class Utils
 		return strtolower($string) === "true";
 	}
 }
-?>

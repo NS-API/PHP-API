@@ -16,32 +16,20 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-class Melding
+require_once(dirname(__FILE__) . '/Outage.php');
+
+class UnplannedOutage extends Outage
 {
-	private $id;
-	private $ernstig;
-	private $text;
+	private $date;
 
-	public function __construct($id, $ernstig, $text)
+	public function __construct($id, $line, $message, $cause, $date)
 	{
-		$this->id = $id;
-		$this->ernstig = $ernstig;
-		$this->text = $text;
+		parent::__construct($id, $line, $message, $cause);
+		$this->date = $date;
 	}
 
-	public function getId()
+	public function getDate()
 	{
-		return $this->id;
-	}
-
-	public function isErnstig()
-	{
-		return $this->ernstig;
-	}
-
-	public function getText()
-	{
-		return $this->text;
+		return $this->date;
 	}
 }
-?>

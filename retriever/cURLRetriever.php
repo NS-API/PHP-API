@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once(dirname(__file__).'/Retriever.php');
-require_once(dirname(__file__).'/NScURLRetrieverException.php');
+require_once(dirname(__FILE__).'/Retriever.php');
+require_once(dirname(__FILE__).'/NScURLRetrieverException.php');
 
 /**
  * A simple Retriever implementation that uses cURL to retrieve data from the NS.
@@ -30,7 +30,7 @@ class cURLRetriever extends Retriever
 
 	const XML_ERROR_INVALID_WEBSERVICE = 002; // 002:The requested webservice is not found
 	const XML_ERROR_INVALID_KEY = 006; // 006:No customer found for the specified username and password
-	const XML_ERROR_UNEXPECTED = 009; // 099:An unexpected exception occured
+	const XML_ERROR_UNEXPECTED = 10; // 099:An unexpected exception occured
 	const XML_ERROR_LIMIT_REACHED = 013; // 013:The limit for calling this webservice has been reached
 
 	public function __construct($username, $password)
@@ -43,24 +43,24 @@ class cURLRetriever extends Retriever
 		return $this->getXML(parent::URL_STATIONS);
 	}
 
-	public function getPrijzen($fromStation, $toStation, $viaStation = null, $dateTime = null)
+	public function getRates($fromStation, $toStation, $viaStation = null, $dateTime = null)
 	{
-		return $this->getXML(parent::URL_PRIJZEN."?from=".$fromStation->getCode()."&to=".$toStation->getCode().($viaStation !== NULL ? "&via=".$viaStation->getCode() : "").($dateTime !== NULL ? "&dateTime=".Utils::UnixTimestamp2ISO8601Date($dateTime) : ""));
+		return $this->getXML(parent::URL_RATES."?from=".$fromStation->getCode()."&to=".$toStation->getCode().($viaStation !== NULL ? "&via=".$viaStation->getCode() : "").($dateTime !== NULL ? "&dateTime=".Utils::UnixTimestamp2ISO8601Date($dateTime) : ""));
 	}
 
-	public function getActueleVertrektijden($station)
+	public function getRealDepartureTimes($station)
 	{
-		return $this->getXML(parent::URL_ACTUELEVERTREKTIJDEN."?station=".$station->getCode());
+		return $this->getXML(parent::URL_REALDEPARTURETIMES."?station=".$station->getCode());
 	}
 
-	public function getTreinplanner($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null)
+	public function getTrainScheduler($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null)
 	{
-		return $this->getXML(parent::URL_TREINPLANNER."?fromStation=".$fromStation->getCode()."&toStation=".$toStation->getCode().($viaStation !== NULL ? "&viaStation=".$viaStation->getCode() : "").($previousAdvices !== NULL ? "&previousAdvices=".$previousAdvices : "").($nextAdvices !== NULL ? "&nextAdvices=".$nextAdvices : "").($dateTime !== NULL ? "&dateTime=".Utils::UnixTimestamp2ISO8601Date($dateTime) : "").($departure !== NULL ? "&departure=".Utils::boolean2String($departure) : "").($hslAllowed !== NULL ? "&hslAllowed=".Utils::boolean2String($hslAllowed) : "").($yearCard !== NULL ? "&yearCard=".Utils::boolean2String($yearCard) : ""));
+		return $this->getXML(parent::URL_TRAINSCHEDULER."?fromStation=".$fromStation->getCode()."&toStation=".$toStation->getCode().($viaStation !== NULL ? "&viaStation=".$viaStation->getCode() : "").($previousAdvices !== NULL ? "&previousAdvices=".$previousAdvices : "").($nextAdvices !== NULL ? "&nextAdvices=".$nextAdvices : "").($dateTime !== NULL ? "&dateTime=".Utils::UnixTimestamp2ISO8601Date($dateTime) : "").($departure !== NULL ? "&departure=".Utils::boolean2String($departure) : "").($hslAllowed !== NULL ? "&hslAllowed=".Utils::boolean2String($hslAllowed) : "").($yearCard !== NULL ? "&yearCard=".Utils::boolean2String($yearCard) : ""));
 	}
 
-	public function getStoringen($station = null, $actual = null, $unplanned = null)
+	public function getOutages($station = null, $actual = null, $unplanned = null)
 	{
-		return $this->getXML(parent::URL_STORINGEN.($station !== NULL ? "?station=".$station->getCode() : "?=").($actual !== NULL ? "&actual=".Utils::boolean2String($actual) : "").($unplanned !== NULL ? "&unplanned=".Utils::boolean2String($unplanned) : ""));
+		return $this->getXML(parent::URL_OUTAGES.($station !== NULL ? "?station=".$station->getCode() : "?=").($actual !== NULL ? "&actual=".Utils::boolean2String($actual) : "").($unplanned !== NULL ? "&unplanned=".Utils::boolean2String($unplanned) : ""));
 	}
 
 	private function getXML($url)
