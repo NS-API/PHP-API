@@ -43,6 +43,29 @@ class NS
 		return $this->cache;
 	}
 
+	/**
+	 * This function returns the stations that are within $maxDiff kilometers from the given latitude/longitude position.
+	 */
+	public function getStationsByCoordinates($latitude, $longitude, $maxDiff)
+	{
+		$stations = $this->getStations();
+		$result = array();
+		foreach ($stations as $station)
+		{
+			if ($station->isAlias())
+			{
+				continue;
+			}
+
+			$diff = Utils::getDistanceBetweenPoints($latitude, $longitude, $station->getLatitude(), $station->getLongitude());
+			if ($diff < $maxDiff)
+			{
+				$result[] = $station;
+			}
+		}
+	return $result;
+	}
+
 	public function getStationByCode($code)
 	{
 		$stations = $this->getStations();

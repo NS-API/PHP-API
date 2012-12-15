@@ -72,5 +72,16 @@ abstract class Utils
 	{
 		return strtolower($string) === "true";
 	}
+
+	/**
+	 * This returns the distance between two points in kilometers using the spherical law of cosines formula.
+	 * All input values are must be in degrees.
+	 * Source: http://www.movable-type.co.uk/scripts/latlong.html
+	 */
+	public static function getDistanceBetweenPoints($latitude1, $longitude1, $latitude2, $longitude2)
+	{
+		$R = 6371; // Earth's radius: 6371km
+		return acos(sin(deg2rad($latitude1)) * sin(deg2rad($latitude2)) + cos(deg2rad($latitude1)) * cos(deg2rad($latitude2)) * cos(deg2rad($longitude2-$longitude1))) * $R;
+	}
 }
 ?>
