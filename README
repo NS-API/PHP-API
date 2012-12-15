@@ -34,6 +34,7 @@ Caching the responses is a good idea, as it lowers the amount of requests you ne
 * MySQLCache: caches responses in a MySQL database table
 
 Let's go for the FileCache. We want to cache the responses in a 'tmp' directory below the current directory. We instantiate the FileCache like so:
+  require_once('cache/FileCache.php');
   $cache = new FileCache($retriever, "tmp");
 
 Step 5: create an NS object
@@ -46,6 +47,7 @@ The NS class has several methods. For this example, we want to retrieve a list o
 
 The complete code is like this:
   require_once('NS.php');
+  require_once('cache/FileCache.php');
   $retriever = new cURLRetriever('<YOUR_EMAIL>', '<YOUR_DEVELOPER_KEY>');
   $cache = new FileCache($retriever, "tmp");
   $ns = new NS($cache);

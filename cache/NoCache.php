@@ -20,7 +20,7 @@
  * This is a Cache implementation that actually does NOT do caching at all.
  * Please, consider a proper caching stragey instead of using this implementation.
  */
-require_once('Cache.php');
+require_once(dirname(__FILE__).'/Cache.php');
 
 class NoCache extends Cache
 {

@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once(dirname(__file__).'/Retriever.php');
-require_once(dirname(__file__).'/NScURLRetrieverException.php');
+require_once(dirname(__FILE__).'/Retriever.php');
+require_once(dirname(__FILE__).'/NScURLRetrieverException.php');
 
 /**
  * A simple Retriever implementation that uses cURL to retrieve data from the NS.
@@ -65,6 +65,7 @@ class cURLRetriever extends Retriever
 
 	private function getXML($url)
 	{
+	error_log($url);
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		curl_setopt($ch, CURLOPT_USERPWD, parent::getUsername() . ":" . parent::getPassword());

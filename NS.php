@@ -16,23 +16,18 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once(dirname(__file__).'/Utils.php');
-require_once(dirname(__file__).'/NSException.php');
+require_once(dirname(__FILE__).'/Utils.php');
+require_once(dirname(__FILE__).'/NSException.php');
 
-require_once(dirname(__file__).'/dto/Station.php');
-require_once(dirname(__file__).'/dto/Product.php');
-require_once(dirname(__file__).'/dto/VertrekkendeTrein.php');
-require_once(dirname(__file__).'/dto/ReisMogelijkheid.php');
-require_once(dirname(__file__).'/dto/GeplandeStoring.php');
-require_once(dirname(__file__).'/dto/OngeplandeStoring.php');
+require_once(dirname(__FILE__).'/dto/Station.php');
+require_once(dirname(__FILE__).'/dto/Product.php');
+require_once(dirname(__FILE__).'/dto/VertrekkendeTrein.php');
+require_once(dirname(__FILE__).'/dto/ReisMogelijkheid.php');
+require_once(dirname(__FILE__).'/dto/GeplandeStoring.php');
+require_once(dirname(__FILE__).'/dto/OngeplandeStoring.php');
 
-require_once(dirname(__file__).'/cache/Cache.php');
-require_once(dirname(__file__).'/cache/NoCache.php');
-require_once(dirname(__file__).'/cache/FileCache.php');
-require_once(dirname(__file__).'/cache/MySQLCache.php');
-
-require_once(dirname(__file__).'/retriever/Retriever.php');
-require_once(dirname(__file__).'/retriever/cURLRetriever.php');
+require_once(dirname(__FILE__).'/retriever/Retriever.php');
+require_once(dirname(__FILE__).'/retriever/cURLRetriever.php');
 
 class NS
 {
@@ -116,7 +111,6 @@ class NS
 		$xml = new SimpleXMLElement($xml);
 
 		$result = array();
-		$i = 0;
 		foreach ($xml->VertrekkendeTrein as $xmlVertrekkendeTrein)
 		{
 			$ritnummer = (string)$xmlVertrekkendeTrein->RitNummer;

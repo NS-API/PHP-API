@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
+require_once(dirname(__FILE__).'/Cache.php');
+
 /**
  * This is a Cache implementation that stores the responses on disk in a directory structure.
  */

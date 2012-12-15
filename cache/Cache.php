@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along with
  * phpNS. If not, see <http://www.gnu.org/licenses/>.
  */
-require_once(dirname(__file__).'/../retriever/Retriever.php');
+require_once(dirname(__FILE__).'/../retriever/Retriever.php');
 
 /**
  * A cache is an object that keeps track of requests made, and responses retrieved.
