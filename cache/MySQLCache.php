@@ -27,7 +27,7 @@ class MySQLCache extends Cache
 	// ID's that are used in the cache table
 	const ID_STATIONS = 0;
 	const ID_PRICES = 1;
-	const ID_ACTUELDEPARTURETIMES = 2;
+	const ID_ACTUALDEPARTURETIMES = 2;
 	const ID_TRAINSCHEDULER = 3;
 	const ID_OUTAGES = 4;
 
@@ -154,13 +154,13 @@ class MySQLCache extends Cache
 		return $xml;
 	}
 
-	public function getActuelDepartureTimes($station)
+	public function getActualDepartureTimes($station)
 	{
-		$xml = $this->tryFromCache(self::ID_ACTUELDEPARTURETIMES, $this->getTimeToCacheActuelDepartureTimes(), $station);
+		$xml = $this->tryFromCache(self::ID_ACTUALDEPARTURETIMES, $this->getTimeToCacheActualDepartureTimes(), $station);
 		if ($xml === NULL)
 		{
-			$xml = $this->getRetriever()->getActuelDepartureTimes($station);
-			$this->putInCache(self::ID_ACTUELDEPARTURETIMES, $xml, $station);
+			$xml = $this->getRetriever()->getActualDepartureTimes($station);
+			$this->putInCache(self::ID_ACTUALDEPARTURETIMES, $xml, $station);
 		}
 		return $xml;
 	}

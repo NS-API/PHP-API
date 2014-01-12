@@ -59,16 +59,16 @@ class FileCache extends Cache
 		}
 	}
 
-	public function getActuelDepartureTimes($station)
+	public function getActualDepartureTimes($station)
 	{
 		$tmpFile = $this->initTmpDir("avt", $station)."result.xml";
-		if (file_exists($tmpFile) && filemtime($tmpFile) + $this->getTimeToCacheActuelDepartureTimes() > time())
+		if (file_exists($tmpFile) && filemtime($tmpFile) + $this->getTimeToCacheActualDepartureTimes() > time())
 		{
 			return file_get_contents($tmpFile);
 		}
 		else
 		{
-			$xml = $this->getRetriever()->getActuelDepartureTimes($station);
+			$xml = $this->getRetriever()->getActualDepartureTimes($station);
 			file_put_contents($tmpFile, $xml);
 			return $xml;
 		}

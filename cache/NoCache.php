@@ -39,7 +39,7 @@ class NoCache extends Cache
 		return $this->getRetriever()->getRates($fromStation, $toStation, $viaStation, $dateTime);
 	}
 
-	public function getActuelDepartureTimes($station)
+	public function getActualDepartureTimes($station)
 	{
 		return $this->getRetriever()->getActualDepartureTimes($station);
 	}

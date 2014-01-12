@@ -48,9 +48,9 @@ class cURLRetriever extends Retriever
 		return $this->getXML(parent::URL_RATES."?from=".$fromStation->getCode()."&to=".$toStation->getCode().($viaStation !== NULL ? "&via=".$viaStation->getCode() : "").($dateTime !== NULL ? "&dateTime=".Utils::UnixTimestamp2ISO8601Date($dateTime) : ""));
 	}
 
-	public function getRealDepartureTimes($station)
+	public function getActualDepartureTimes($station)
 	{
-		return $this->getXML(parent::URL_REALDEPARTURETIMES."?station=".$station->getCode());
+		return $this->getXML(parent::URL_ACTUALDEPARTURETIMES."?station=".$station->getCode());
 	}
 
 	public function getTrainScheduler($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null)

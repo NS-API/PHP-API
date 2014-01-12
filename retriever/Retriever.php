@@ -31,7 +31,7 @@ abstract class Retriever
 
 	const URL_STATIONS = "http://webservices.ns.nl/ns-api-stations";
 	const URL_RATES = "http://webservices.ns.nl/ns-api-prijzen-v2";
-	const URL_REALDEPARTURETIMES = "http://webservices.ns.nl/ns-api-avt";
+	const URL_ACTUALDEPARTURETIMES = "http://webservices.ns.nl/ns-api-avt";
 	const URL_TRAINSCHEDULER = "http://webservices.ns.nl/ns-api-trainscheduler";
 	const URL_OUTAGES = "http://webservices.ns.nl/ns-api-outages";
 
@@ -53,7 +53,7 @@ abstract class Retriever
 
 	public abstract function getStations();
 	public abstract function getRates($fromStation, $toStation, $viaStation = null, $dateTime = null);
-	public abstract function getRealDepartureTimes($station);
+	public abstract function getActualDepartureTimes($station);
 	public abstract function getTrainScheduler($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null);
 	public abstract function getOutages($station = null, $actual = null, $unplanned = null);
 }

@@ -34,32 +34,25 @@ require_once(dirname(__FILE__).'/cache/MySQLCache.php');
 require_once(dirname(__FILE__).'/retriever/Retriever.php');
 require_once(dirname(__FILE__).'/retriever/cURLRetriever.php');
 
-class NS
-{
+class NS {
 	private $cache;
 
-	public function __construct($cache)
-	{
+	public function __construct($cache) {
 		$this->cache = $cache;
 	}
 	
-	public function getCache()
-	{
+	public function getCache() {
 		return $this->cache;
 	}
 
-	public function getStationByCode($code)
-	{
+	public function getStationByCode($code) {
 		$stations = $this->getStations();
-		foreach ($stations as $station)
-		{
-			if ($station->isAlias())
-			{
+		foreach ($stations as $station) {
+			if ($station->isAlias()) {
 				continue;
 			}
 
-			if ($station->getCode() === $code)
-			{
+			if ($station->getCode() === $code) {
 				return $station;
 			}
 		}
@@ -68,16 +61,13 @@ class NS
     public function getStationsByCoordinates($longitude, $latitude, $maxDiff) {
         $stations = $this->getStations();
         $result = array();
-        foreach ($stations as $station)
-        {
-            if ($station->isAlias())
-            {
+        foreach ($stations as $station) {
+            if ($station->isAlias()) {
                 continue;
             }
 
-            $diff = $this->getDistanceBetweenPointsNew($latitude, $longitude, $station->getLatitude(), $station->getLongitude());
-            if (intval($diff['kilometers']) < intval($maxDiff))
-            {
+            $diff = Utils::distanceBetweenPoints($latitude, $longitude, $station->getLatitude(), $station->getLongitude(), 'Km');
+            if (intval($diff) < intval($maxDiff)) {
                 $result[] = $station;
             }
         }
@@ -93,14 +83,23 @@ class NS
         return $result;
     }
 
-	public function getStations()
-	{
+    public function getStationByStationName($stationName) {
+        $result = null;
+        $stations = $this->getStations();
+        foreach($stations as $station) {
+            if ($station->getName() == $stationName) {
+                $result = $station;
+            }
+        }
+        return $result;
+    }
+
+	public function getStations() {
 		$xml = $this->cache->getStations();
 		$xml = new SimpleXMLElement($xml);
 
 		$result = array();
-		foreach ($xml->station as $xmlStation)
-		{
+		foreach ($xml->station as $xmlStation) {
 			$name = (string)$xmlStation->name;
 			$code = (string)$xmlStation->code;
 			$country = (string)$xmlStation->country;
@@ -113,19 +112,16 @@ class NS
 		return $result;
 	}
 
-	public function getRates($fromStation, $toStation, $viaStation = null, $dateTime = null)
-	{
+	public function getRates($fromStation, $toStation, $viaStation = null, $dateTime = null) {
 		$xml = $this->cache->getRates($fromStation, $toStation, $viaStation, $dateTime);
 		$xml = new SimpleXMLElement($xml);
 
 		$result = array();
-		foreach ($xml->Product as $xmlProduct)
-		{
+		foreach ($xml->Product as $xmlProduct) {
 			$name = (string)$xmlProduct['naam'];
 
 			$rates = array();
-			foreach ($xmlProduct->Prijs as $xmlRate)
-			{
+			foreach ($xmlProduct->Prijs as $xmlRate) {
 				$discount = (string)$xmlRate['korting'];
 				$class = (string)$xmlRate['klasse'];
 				$rate = (string)$xmlRate;
@@ -138,50 +134,50 @@ class NS
 		return $result;
 	}
 
-	public function getRealDepartureTimes($station)
-	{
-		$xml = $this->cache->getRealDepartureTimes($station);
+    public function getActualDepartureTimesByStationName($stationName) {
+        return $this->getActualDepartureTimes($this->getStationByStationName($stationName));
+    }
+
+	public function getActualDepartureTimes($station) {
+		$xml = $this->cache->getActualDepartureTimes($station);
 		$xml = new SimpleXMLElement($xml);
 
 		$result = array();
-		foreach ($xml->DepartingTrain as $xmlDepartingTrain)
-		{
-			$shiftNumber = (string)$xmlDepartingTrain->RitNummer;
+		foreach ($xml->VertrekkendeTrein as $xmlDepartingTrain) {
+			$shiftNumber = (string) $xmlDepartingTrain->RitNummer;
 			$departureTime = Utils::ISO8601Date2UnixTimestamp($xmlDepartingTrain->VertrekTijd);
 			$departureDelay = NULL;
 			$departureDelayText = NULL;
-			if ($xmlDepartingTrain->VertrekVertraging !== NULL && (string)$xmlDepartingTrain->VertrekVertraging !== "")
-			{
+			if ($xmlDepartingTrain->VertrekVertraging !== NULL && (string)$xmlDepartingTrain->VertrekVertraging !== "") {
 				$departureDelay = Utils::ISO8601Period2UnixTimestamp($xmlDepartingTrain->VertrekVertraging, $departureTime);
-				$departureDelayText = (string)$xmlDepartingTrain->VertrekVertragingTekst;
+				$departureDelayText = (string) $xmlDepartingTrain->VertrekVertragingTekst;
 			}
-			$finalDestination = (string)$xmlDepartingTrain->EindBestemming;
-			$trainType = (string)$xmlDepartingTrain->TreinSoort;
-			$departureTrack = (string)$xmlDepartingTrain->VertrekSpoor;
+			$finalDestination = (string) $xmlDepartingTrain->EindBestemming;
+			$trainType = (string) $xmlDepartingTrain->TreinSoort;
+			$departureTrack = (string) $xmlDepartingTrain->VertrekSpoor;
 			$departureTrackChanged = Utils::string2Boolean($xmlDepartingTrain->VertrekSpoor['wijziging']);
 
 			$remarks = array();
-			if ($xmlDepartingTrain->Opmerkingen->Opmerking !== NULL)
-			{
-				foreach ($xmlDepartingTrain->Opmerkingen->Opmerking as $xmlOpmerking)
-				{
-					$remarks[] = trim((string)$xmlOpmerking);
+			if ($xmlDepartingTrain->Opmerkingen->Opmerking !== NULL) {
+				foreach ($xmlDepartingTrain->Opmerkingen->Opmerking as $xmlOpmerking) {
+					$remarks[] = trim((string) $xmlOpmerking);
 				}
 			}
-			$departingTrain = new DepartingTrain($shiftNumber, $departureTime, $departureDelay, $departureDelayText, $finalDestination, $trainType, $departureTrack, $departureTrackChanged, $remarks);
+			$departingTrain = new DepartingTrain(
+                $shiftNumber, $departureTime, $departureDelay, $departureDelayText,
+                $finalDestination, $trainType, $departureTrack, $departureTrackChanged, $remarks
+            );
 			$result[] = $departingTrain;
 		}
 		return $result;
 	}
 
-	public function getTrainscheduler($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null)
-	{
+	public function getTrainscheduler($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null) {
 		$xml = $this->cache->getTrainscheduler($fromStation, $toStation, $viaStation, $previousAdvices, $nextAdvices, $dateTime, $departure, $hslAllowed, $yearCard);
 		$xml = new SimpleXMLElement($xml);
 
 		$result = array();
-		foreach ($xml->TravelOption as $xmlTravelOption)
-		{
+		foreach ($xml->TravelOption as $xmlTravelOption) {
 			$numberOfChanges = (string)$xmlTravelOption->AantalOverstappen;
 			$scheduledTravelTime = Utils::ISO8601Date2UnixTimestamp($xmlTravelOption->GeplandeReisTijd);
 			$actualTravelTime = Utils::ISO8601Date2UnixTimestamp($xmlTravelOption->ActueleReisTijd);
@@ -192,8 +188,7 @@ class NS
 			$actualArrivalTime = Utils::ISO8601Date2UnixTimestamp($xmlTravelOption->ActueleAankomstTijd);
 
 			$alert = NULL;
-			if ($xmlTravelOption->Alert->Id !== NULL)
-			{
+			if ($xmlTravelOption->Alert->Id !== NULL) {
 				$xmlAlert = $xmlTravelOption->Alert;
 				$id = (string)$xmlAlert->Id;
 				$serious = Utils::string2Boolean($xmlAlert->Serious);
@@ -202,15 +197,13 @@ class NS
 			}
 
 			$travelParts = array();
-			foreach ($xmlTravelOption->ReisDeel as $xmlTravelPart)
-			{
+			foreach ($xmlTravelOption->ReisDeel as $xmlTravelPart) {
 				$travelType = (string)$xmlTravelPart['travelType'];
 				$transportationType = (string)$xmlTravelPart->VervoerType;
 				$shiftNumber = (string)$xmlTravelPart->RitNummer;
 
 				$travelStops = array();
-				foreach ($xmlTravelPart->ReisStop as $xmlTravelStop)
-				{
+				foreach ($xmlTravelPart->ReisStop as $xmlTravelStop) {
 					$name = (string)$xmlTravelStop->Naam;
 					$time = Utils::ISO8601Date2UnixTimestamp($xmlTravelStop->Tijd);
 					$track = (string)$xmlTravelStop->Spoor;
@@ -227,14 +220,12 @@ class NS
 		return $result;
 	}
 
-	public function getOutages($station, $actual = null, $unplanned = null)
-	{
+	public function getOutages($station, $actual = null, $unplanned = null) {
 		$result = array();
 		$xml = $this->cache->getOutages($station, $actual, $unplanned);
 		$xml = new SimpleXMLElement($xml);
 
-		foreach ($xml->Ongepland->Storing as $xmlUnplannedOutage)
-		{
+		foreach ($xml->Ongepland->Storing as $xmlUnplannedOutage) {
 			$id = (string)$xmlUnplannedOutage->id;
 			$line = (string)$xmlUnplannedOutage->Line;
 			$cause = (string)$xmlUnplannedOutage->Cause;
@@ -244,8 +235,7 @@ class NS
 			$result[] = $unplannedOutage;
 		}
 
-		foreach ($xml->Gepland->Storing as $xmlPlannedOutage)
-		{
+		foreach ($xml->Gepland->Storing as $xmlPlannedOutage) {
 			$id = (string)$xmlPlannedOutage->id;
 			$line = (string)$xmlPlannedOutage->Line;
 			$interval = (string)$xmlPlannedOutage->Interval;
@@ -258,16 +248,4 @@ class NS
 		return $result;
 	}
 
-    private function getDistanceBetweenPointsNew($latitude1, $longitude1, $latitude2, $longitude2) {
-        $theta = $longitude1 - $longitude2;
-        $miles = (sin(deg2rad($latitude1)) * sin(deg2rad($latitude2))) + (cos(deg2rad($latitude1)) * cos(deg2rad($latitude2)) * cos(deg2rad($theta)));
-        $miles = acos($miles);
-        $miles = rad2deg($miles);
-        $miles = $miles * 60 * 1.1515;
-        $feet = $miles * 5280;
-        $yards = $feet / 3;
-        $kilometers = $miles * 1.609344;
-        $meters = $kilometers * 1000;
-        return compact('miles','feet','yards','kilometers','meters');
-    }
 }

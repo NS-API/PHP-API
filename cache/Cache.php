@@ -30,7 +30,7 @@ abstract class Cache
 	// Seconds to cache a previous result
 	private $timeToCacheStations = 86400; // 60 * 60 * 24
 	private $timeToCachePrices = 86400; // 60 * 60 * 24
-	private $timeToCacheActuelDepartureTimes = 30;
+	private $timeToCacheActualDepartureTimes = 30;
 	private $timeToCacheTrainscheduler = 60;
 	private $timeToCacheOutages = 120; // 60 * 2
 
@@ -63,14 +63,14 @@ abstract class Cache
 		$this->timeToCachePrices = $timeToCachePrices;
 	}
 
-	public function getTimeToCacheActuelDepartureTimes()
+	public function getTimeToCacheActualDepartureTimes()
 	{
-		return $this->timeToCacheActuelDepartureTimes;
+		return $this->timeToCacheActualDepartureTimes;
 	}
 
-	public function setTimeToCacheActuelDepartureTimes($timeToCacheActuelDepartureTimes)
+	public function setTimeToCacheActualDepartureTimes($timeToCacheActualDepartureTimes)
 	{
-		$this->timeToCacheActuelDepartureTimes = $timeToCacheActuelDepartureTimes;
+		$this->timeToCacheActualDepartureTimes = $timeToCacheActualDepartureTimes;
 	}
 
 	public function getTimeToCacheTrainscheduler()
@@ -95,7 +95,7 @@ abstract class Cache
 
 	public abstract function getStations();
 	public abstract function getRates($fromStation, $toStation, $viaStation = null, $dateTime = null);
-	public abstract function getActuelDepartureTimes($station);
+	public abstract function getActualDepartureTimes($station);
 	public abstract function getTrainscheduler($fromStation, $toStation, $viaStation = null, $previousAdvices = null, $nextAdvices = null, $dateTime = null, $departure = null, $hslAllowed = null, $yearCard = null);
 	public abstract function getOutages($station, $actual = null, $unplanned = null);
 }
